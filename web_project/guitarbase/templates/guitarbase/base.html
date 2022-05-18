@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+ 
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="{% static 'guitarbase/main.css' %}" rel="stylesheet" type="text/css">
+
+    <title>Home</title>
+</head>
+<body>
+    <div class="container" id="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- <script src="{% static 'guitarbase/main.js'%}" defer></script> -->
+    <script>
+        console.log("hi");
+
+        function addEventsToAccordion() {
+            const artistAccordion = document.getElementsByClassName("content-artist");
+            let i;
+
+            for (i = 0; i < artistAccordion.length; i++) {
+                artistAccordion[i].addEventListener("click", accordionToggle);
+            }
+
+            const songAccordion = document.getElementsByClassName("content-song");
+            for (i = 0; i < songAccordion.length; i++) {
+                songAccordion[i].addEventListener("click", accordionToggle);
+            }
+        }
+        addEventsToAccordion();
+
+        function accordionToggle(event) {
+            if (event.target.tagName.toLowerCase() == 'input') {
+                console.log(event.target.tagName);
+                return;
+            }
+            const panel = this.nextElementSibling;
+            console.log(panel.style.display);
+            if (panel.style.display === "block") {
+                panel.style.display = "none";
+            }
+            else {
+                panel.style.display = "block";
+            }
+        }
+    
+        console.log('START OF MAIN.JS');
+        const form = document.getElementById('form');
+
+        const artistName = document.getElementById('id_artist_name');
+        const songName = document.getElementById('id_song_name');
+        const capo = document.getElementById('id_capo');
+        const tuning = document.getElementById('id_tuning');
+        const songUrl = document.getElementById('id_url');
+        const verseChord = document.getElementById('id_verse_chord_prog');
+        const chorusChord = document.getElementById('id_chorus_chord_prog');
+        const bridgeChord = document.getElementById('id_bridge_chord_prog');
+
+        const url = "";
+
+        const csrf = document.getElementsByName('csrfmiddlewaretoken');
+        console.log(csrf);
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        form.addEventListener('submit', e=>{
+            console.log('EVENT LISTENER FUNCTION BEGINS')
+            e.preventDefault();
+
+            const myFormData = new FormData();
+            myFormData.append('csrfmiddlewaretoken', csrf[0].value);
+            myFormData.append('artist_name', artistName.value)
+            myFormData.append('song_name', songName.value)
+            myFormData.append('capo', capo.value)
+            myFormData.append('tuning', tuning.value)
+            myFormData.append('url', songUrl.value)
+            myFormData.append('verse_chord_prog', verseChord.value)
+            myFormData.append('chorus_chord_prog', chorusChord.value)
+            myFormData.append('bridge_chord_prog', bridgeChord.value)
+
+            console.log('FORM DATA APPENDED');
+            
+            console.log('AJAX FUNCTION BEGINS')
+            
+            $.ajax({
+                method: 'POST',
+                type: 'POST',
+                headers: {"X-Requested-With": "XMLHttpRequest", "X-CSRFToken": csrftoken},
+                url: url,
+                enctype: 'multipart/form-data',
+                data: myFormData,
+                success: function(data) {
+                    console.log(data);
+                    var htmlString1 = '<article class = content-artist><h2>' + data.artist_name + '</h2><form class="button" method="POST" action="{% url "guitarbase-delete-artist" ' + data.artist_id + ' %}">{%csrf_token%}<input type="submit" value="Delete"></form><form class="button"><input type="submit" value="Edit"></form></article>' +
+                        '<div class = div-contain><section class = content-song><h3>' + data.song_name + '</h3><form class="button" method="POST" action="{% url "guitarbase-delete-song" ' + data.song_id + ' %}">{%csrf_token%}<input type="submit" value="Delete"></form><form class="button"><input type="submit" value="Edit"></form></section><div class = div-contain><section class = content-info><p>Capo: ' + data.capo + ', Tuning: ' + data.tuning + '</p></section></div></div>';
+                    htmlString1 = htmlString1.replace("%20+%20data.artist_id%20+%20", data.artist_id);
+                    htmlString1 = htmlString1.replace("%20+%20data.song_id%20+%20", data.song_id);
+                    if (data.artist_preexisted) {
+                        $('#container').append(
+                            htmlString1
+                        );
+                    } else {
+                        
+                    }
+                    
+                    addEventsToAccordion();
+                },
+                error: function(error) {
+                    console.log(error);
+                },
+                cache: false,
+                contentType: false,
+                processData: false,
+            });
+
+            console.log('AJAX FUNCTION CALLED')
+        });
+
+        
+    </script>
+
+</body>
+</html>
