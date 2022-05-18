@@ -1,0 +1,45 @@
+.content-artist {
+    margin: 0;
+    padding: .5rem;
+    background-color: #eee;
+    /* border: 1px solid #000000; */
+}
+
+.content-artist > h2 {
+    font-size: 26px;
+}
+
+.content-song {
+    margin: .5rem;
+    padding: .5rem;
+    background-color: rgb(204, 216, 226);
+}
+
+/* .content-song > p {
+    margin: .5rem;
+} */
+
+.content-song > h3 {
+    font-size: 20px;
+}
+
+.content-info {
+    margin: .5rem;
+    padding: .5rem;
+    background-color: rgb(220, 220, 220);
+}
+
+.div-contain {
+    display: none;
+}
+
+.button, h2, h3 {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 10px 0;
+}
+
+.button {
+    float: right;
+    margin: 10px 5px;
+}

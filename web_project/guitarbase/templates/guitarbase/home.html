@@ -1,0 +1,58 @@
+{% extends 'guitarbase/base.html' %}
+{% block content %}
+    <h1>Guitarbase Home</h1>
+    <br>
+    <form id='form'> <!-- for none-ajax: method='POST' action='/guitarbase/'-->
+        {%csrf_token%}
+        {{artist_form}}<br><br>
+        {{song_form}}<br><br>
+        {{verse_form}}
+        {{chorus_form}}
+        {{bridge_form}}
+        <input type='submit' name='Add'>
+    </form><br>
+
+    {% for artist in artists %}
+        <article class = content-artist>
+            <h2>{{artist.artist_name}}</h2>
+            <form class='button' method='POST' action='{% url 'guitarbase-delete-artist' artist.id %}'>
+                {%csrf_token%}
+                <input type='submit' value='Delete'>
+            </form>
+            <form class='button'>
+                <input type='submit' value='Edit'>
+            </form>
+        </article>
+        <div class = div-contain>
+        {% for song in artist.song_set.all %}
+            <section class = content-song>
+                <h3>{{song.song_name}}</h3>
+                <form class='button' method='POST' action='{% url 'guitarbase-delete-song' song.id %}'>
+                    {%csrf_token%}
+                    <input type='submit' value='Delete'>
+                </form>
+                <form class='button'>
+                    <input type='submit' value='Edit'>
+                </form>
+            </section>
+            <div class = div-contain>
+            <section class = content-info>
+                <p>Capo: {{song.capo}}, Tuning: {{song.tuning}}</p>
+                    {% for verse in song.verse_set.all %}
+                <p>Verse: {{verse.verse_chord_prog}}</p>
+                    {% endfor %}
+                    {% for chorus in song.chorus_set.all %}
+                <p>Chorus: {{chorus.chorus_chord_prog}}</p>
+                    {% endfor %}
+                    {% for bridge in song.bridge_set.all %}
+                <p>Bridge: {{bridge.bridge_chord_prog}}</p>
+                    {% endfor %}
+            </section>
+            </div>
+            
+        {% endfor %}
+        </div>
+        
+    {% endfor %}
+
+{% endblock content %}
